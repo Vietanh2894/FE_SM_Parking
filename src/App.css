@@ -1,0 +1,15 @@
+/* Không cần thêm gì nếu dùng Tailwind, nhưng giữ để tương thích */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 8px;
+  text-align: left;
+}
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+tr:hover {
+  background-color: #f1f1f1;
+}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './VehiclePage.css';
-import EditVehicleModal from './EditVehicleModal';
-import AddVehicleModal from './AddVehicleModal';
-import ConfirmationPopup from './ConfirmationPopup';
+import '../styles/VehiclePage.css';
+import EditVehicleModal from '../components/modals/EditVehicleModal';
+import AddVehicleModal from '../components/modals/AddVehicleModal';
+import ConfirmationPopup from '../components/common/ConfirmationPopup';
 
 const VehiclePage = () => {
     const [vehicles, setVehicles] = useState([]);

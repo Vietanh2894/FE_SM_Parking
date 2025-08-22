@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './UserPage.css';
-import EditUserModal from './EditUserModal';
-import AddUserModal from './AddUserModal';
-import ConfirmationPopup from './ConfirmationPopup';
+import '../styles/UserPage.css';
+import EditUserModal from '../components/modals/EditUserModal';
+import AddUserModal from '../components/modals/AddUserModal';
+import ConfirmationPopup from '../components/common/ConfirmationPopup';
 
 // API instance để đồng nhất base URL
 const api = axios.create({

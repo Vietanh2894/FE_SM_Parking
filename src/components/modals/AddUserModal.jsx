@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './FormPopup.css'; // Using common CSS for form popups
+import '../../styles/FormPopup.css'; // Using common CSS for form popups
 
 const AddUserModal = ({ onSave, onClose }) => {
     const [formData, setFormData] = useState({

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './FormPopup.css';
+import '../../styles/FormPopup.css';
 
 const AddVehicleModal = ({ onSave, onClose }) => {
     const [bienSoXe, setBienSoXe] = useState('');

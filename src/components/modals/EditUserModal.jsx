@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './FormPopup.css';
+import '../../styles/FormPopup.css';
 
 const EditUserModal = ({ user, onSave, onClose }) => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '' });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './FormPopup.css';
+import '../../styles/FormPopup.css';
 
 const EditVehicleModal = ({ vehicle, onSave, onClose }) => {
     const [tenXe, setTenXe] = useState('');

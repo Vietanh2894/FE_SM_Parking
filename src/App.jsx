@@ -1,11 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './component/LoginPage';
-import HomePage from './component/HomePage';
-import DashboardLayout from './component/layout/DashboardLayout';
-import DashboardContent from './component/DashboardContent';
-import UserPage from './component/UserPage';
-import VehiclePage from './component/VehiclePage';
+import { LoginPage, HomePage, UserPage, VehiclePage } from './pages';
+import { DashboardLayout } from './layouts';
+import { DashboardContent } from './components';
 import './App.css';
 
 function App() {

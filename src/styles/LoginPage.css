@@ -1,62 +1,95 @@
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f2f5;
-}
+/* LoginPage Tailwind Styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.login-form {
-    padding: 2rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-}
-
-.login-form h2 {
-    margin-bottom: 1.5rem;
-    color: #333;
-}
-
-.input-group {
-    margin-bottom: 1rem;
-    text-align: left;
-}
-
-.input-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #555;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.error-message {
-    color: #d93025;
-    margin-bottom: 1rem;
-}
-
-button {
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 4px;
-    background-color: #007bff;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #0056b3;
+/* Custom components for LoginPage */
+@layer components {
+  .login-container {
+    @apply min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4;
+  }
+  
+  .login-card {
+    @apply bg-white rounded-2xl shadow-xl w-full max-w-md p-8;
+  }
+  
+  .login-header {
+    @apply text-center mb-8;
+  }
+  
+  .login-logo {
+    @apply bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4;
+  }
+  
+  .login-logo-icon {
+    @apply w-8 h-8 text-white;
+  }
+  
+  .login-title {
+    @apply text-3xl font-bold text-gray-800;
+  }
+  
+  .login-subtitle {
+    @apply text-gray-600 mt-2;
+  }
+  
+  .login-form {
+    @apply space-y-6;
+  }
+  
+  .form-group {
+    @apply block;
+  }
+  
+  .form-label {
+    @apply block text-sm font-semibold text-gray-700 mb-2;
+  }
+  
+  .input-wrapper {
+    @apply relative;
+  }
+  
+  .form-input {
+    @apply w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200;
+  }
+  
+  .input-icon {
+    @apply w-5 h-5 text-gray-400 absolute left-4 top-3.5;
+  }
+  
+  .error-container {
+    @apply bg-red-50 border border-red-200 rounded-lg p-4;
+  }
+  
+  .error-content {
+    @apply flex;
+  }
+  
+  .error-icon {
+    @apply w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0;
+  }
+  
+  .error-text {
+    @apply text-sm text-red-700;
+  }
+  
+  .login-button {
+    @apply w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .loading-content {
+    @apply flex items-center justify-center;
+  }
+  
+  .loading-spinner {
+    @apply animate-spin -ml-1 mr-3 h-5 w-5 text-white;
+  }
+  
+  .login-footer {
+    @apply mt-8 text-center;
+  }
+  
+  .footer-text {
+    @apply text-sm text-gray-600;
+  }
 }

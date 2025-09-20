@@ -1,0 +1,26 @@
+/* Dashboard Layout Styles - Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom components for DashboardLayout */
+@layer components {
+  .dashboard-layout {
+    @apply flex min-h-screen bg-gray-50;
+  }
+
+  .dashboard-main {
+    @apply flex-1 ml-[260px] p-5 transition-[margin-left] duration-300 ease-in-out;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .dashboard-layout {
+      @apply flex-col;
+    }
+    
+    .dashboard-main {
+      @apply ml-0;
+    }
+  }
+}

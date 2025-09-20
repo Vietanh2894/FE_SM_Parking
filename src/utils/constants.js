@@ -28,3 +28,18 @@ export const VEHICLE_TYPES = {
     MOTORCYCLE: 'motorcycle',
     BICYCLE: 'bicycle'
 };
+
+// Error messages for backend validation
+export const ERROR_MESSAGES = {
+    PAYMENT_REQUIRED: 'Cần thanh toán trước khi có thể chỉnh sửa',
+    PAYMENT_ALREADY_COMPLETED: 'Đăng ký này đã được thanh toán',
+    CANNOT_EDIT_PAID_REGISTRATION: 'Không thể chỉnh sửa đăng ký đã thanh toán',
+    CANNOT_EXTEND_ACTIVE_REGISTRATION: 'Không thể gia hạn đăng ký đang hoạt động',
+    CANNOT_EXTEND_PENDING_PAYMENT: 'Cần thanh toán trước khi gia hạn',
+    USER_NOT_FOUND: 'Không tìm thấy người dùng',
+    VEHICLE_NOT_FOUND: 'Không tìm thấy phương tiện',
+    REGISTRATION_NOT_FOUND: 'Không tìm thấy đăng ký',
+    INSUFFICIENT_BALANCE: 'Số dư không đủ để thực hiện thanh toán',
+    INVALID_PAYMENT_STATUS: 'Trạng thái thanh toán không hợp lệ',
+    INVALID_REGISTRATION_STATUS: 'Trạng thái đăng ký không hợp lệ'
+};

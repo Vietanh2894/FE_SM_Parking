@@ -7,14 +7,13 @@ export default defineConfig({
   server: {
     port: 5173, // Match the port in the backend's CORS configuration
     proxy: {
-      '/login': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-      },
-      '/users': {
+      // Using hash router now, so proxying not needed for client-side routes
+      '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
       }
     },
+    // Configure history fallback for SPA routing
+    historyApiFallback: true, 
   },
 })

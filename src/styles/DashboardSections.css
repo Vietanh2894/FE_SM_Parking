@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Dashboard Sections */
+  .dashboard-section {
+    @apply bg-white rounded-lg p-6 mb-6 shadow-sm;
+  }
+
+  .section-header {
+    @apply flex justify-between items-center mb-4;
+  }
+
+  .section-header h2 {
+    @apply text-lg font-semibold text-gray-900 m-0;
+  }
+
+  .view-all {
+    @apply text-blue-600 text-sm font-medium no-underline hover:underline;
+  }
+
+  /* Revenue Chart */
+  .revenue-chart {
+    @apply h-80 w-full;
+  }
+
+  .chart-placeholder {
+    @apply h-full w-full flex flex-col items-center justify-center bg-gray-50 rounded-lg border border-dashed border-gray-300;
+  }
+
+  .chart-placeholder p {
+    @apply text-gray-500 mb-5;
+  }
+
+  .chart-bars {
+    @apply flex items-end justify-around w-4/5 h-48;
+  }
+
+  .chart-bar {
+    @apply bg-blue-600 w-10 rounded-t relative transition-all duration-300;
+  }
+
+  .chart-bar span {
+    @apply absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500;
+  }
+
+  /* Activity List */
+  .activity-list {
+    @apply flex flex-col;
+  }
+
+  .activity-item {
+    @apply flex justify-between items-center py-3 border-b border-gray-200 last:border-b-0;
+  }
+
+  .activity-content {
+    @apply flex flex-col;
+  }
+
+  .activity-action {
+    @apply text-sm font-medium text-gray-900 m-0 mb-0.5;
+  }
+
+  .activity-details {
+    @apply text-xs text-gray-500 m-0;
+  }
+
+  .activity-time {
+    @apply text-xs text-gray-400 whitespace-nowrap;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .stats-grid {
+      @apply grid-cols-1;
+    }
+    
+    .dashboard-welcome {
+      @apply flex-col items-start;
+    }
+  }
+}

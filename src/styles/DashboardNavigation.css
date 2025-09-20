@@ -1,0 +1,162 @@
+/* Dashboard Navigation Styles - Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom components for DashboardNavigation */
+@layer components {
+  /* Main Navigation Container */
+  .dashboard-nav {
+    @apply w-[260px] bg-white shadow-lg h-screen flex flex-col border-r border-gray-200 fixed left-0 top-0 z-20 transition-transform duration-300 ease-in-out;
+  }
+
+  /* Navigation Header */
+  .nav-header {
+    @apply p-6 border-b border-gray-200;
+  }
+
+  .nav-brand {
+    @apply flex items-center gap-3;
+  }
+
+  .brand-logo {
+    @apply bg-blue-600 p-2 rounded-lg flex items-center justify-center;
+  }
+
+  .brand-logo svg {
+    @apply w-6 h-6 text-white;
+  }
+
+  .brand-text {
+    @apply text-xl font-bold text-gray-800;
+  }
+
+  /* Navigation Menu */
+  .nav-menu {
+    @apply flex-1 py-4 overflow-y-auto;
+  }
+
+  .nav-item {
+    @apply w-full flex items-center gap-3 py-3 px-6 text-left text-gray-600 border-none bg-transparent cursor-pointer transition-all duration-200;
+  }
+
+  .nav-item:hover {
+    @apply bg-gray-50 text-blue-600;
+  }
+
+  .nav-item.active {
+    @apply bg-blue-50 text-blue-600 border-r-4 border-blue-600;
+  }
+
+  .nav-icon {
+    @apply w-5 h-5 flex-shrink-0;
+  }
+
+  .nav-label {
+    @apply font-medium text-[0.95rem];
+  }
+
+  /* Navigation Footer */
+  .nav-footer {
+    @apply p-4 border-t border-gray-200 flex items-center justify-between;
+  }
+
+  .user-info {
+    @apply flex items-center gap-3 flex-1;
+  }
+
+  .user-avatar {
+    @apply w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center;
+  }
+
+  .avatar-text {
+    @apply text-white font-semibold text-sm;
+  }
+
+  .user-details {
+    @apply flex-1 min-w-0;
+  }
+
+  .user-name {
+    @apply text-sm font-medium text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis;
+  }
+
+  .user-role {
+    @apply text-xs text-gray-500 whitespace-nowrap overflow-hidden text-ellipsis;
+  }
+
+  .logout-btn {
+    @apply p-2 text-gray-400 bg-transparent border-none rounded-lg cursor-pointer transition-all duration-200 hover:text-red-500 hover:bg-red-50;
+  }
+
+  .logout-btn svg {
+    @apply w-5 h-5;
+  }
+
+  /* Mobile Toggle Button */
+  .mobile-nav-toggle {
+    @apply hidden fixed bottom-6 right-6 z-30;
+  }
+
+  .toggle-button {
+    @apply w-12 h-12 bg-blue-600 text-white border-none rounded-full flex items-center justify-center cursor-pointer shadow-md;
+  }
+
+  .toggle-icon {
+    @apply w-6 h-6;
+  }
+
+  /* Logout Confirmation Dialog */
+  .logout-confirm-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+
+  .logout-confirm-dialog {
+    @apply bg-white rounded-xl p-6 w-11/12 max-w-sm shadow-lg;
+  }
+
+  .logout-confirm-title {
+    @apply text-lg font-semibold text-gray-800 mb-2;
+  }
+
+  .logout-confirm-message {
+    @apply text-[0.938rem] text-gray-600 mb-6;
+  }
+
+  .logout-confirm-actions {
+    @apply flex justify-end gap-3;
+  }
+
+  .logout-confirm-cancel {
+    @apply py-2 px-4 border border-gray-200 bg-white rounded-md text-gray-600 font-medium cursor-pointer transition-all duration-200 hover:bg-gray-50;
+  }
+
+  .logout-confirm-ok {
+    @apply py-2 px-4 bg-red-500 border-none rounded-md text-white font-medium cursor-pointer transition-all duration-200 hover:bg-red-600;
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 768px) {
+    .dashboard-nav {
+      @apply w-[260px] transform -translate-x-full;
+    }
+
+    .dashboard-nav.mobile-open {
+      @apply transform translate-x-0;
+    }
+
+    .dashboard-nav.mobile-closed {
+      @apply transform -translate-x-full;
+    }
+
+    .mobile-nav-toggle {
+      @apply block;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .dashboard-nav {
+      @apply w-full;
+    }
+  }
+}

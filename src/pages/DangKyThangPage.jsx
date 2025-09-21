@@ -144,6 +144,35 @@ const DangKyThangPage = () => {
     return dangKy.trangThaiThanhToan === 'PENDING';
   };
 
+  // Helper function để kiểm tra xem bản ghi có phải là bản ghi cuối cùng trong chuỗi gia hạn không  
+  const isLatestInChain = (dangKy) => {
+    // Với linked-list structure mới: Root → Ext1 → Ext2 → Ext3
+    // Bản ghi cuối cùng = không có bản ghi nào khác có parentId trỏ đến nó
+    const isLatest = !dangKyThangs.some(item => item.parentId === dangKy.id);
+    
+
+    console.log(`� Kiểm tra ID ${dangKy.id} (${dangKy.bienSoXe}):`);
+
+    return !dangKyThangs.some(item => item.parentId === dangKy.id);
+  };
+
+  // Logic kiểm tra có thể gia hạn không - tương thích với linked-list structure từ backend
+  const canSmartExtend = (dangKy) => {
+    // Rule 1: CANCELLED không được gia hạn
+    if (dangKy.trangThai === 'CANCELLED') {
+      return false;
+    }
+    
+    // Rule 2: CHỈ bản ghi cuối cùng trong chuỗi mới được gia hạn
+    // Với linked-list: Root → Ext1 → Ext2 → Ext3, chỉ Ext3 có thể gia hạn tiếp
+    if (!isLatestInChain(dangKy)) {
+      return false;
+    }
+    
+    // Rule 3: Chỉ ACTIVE và EXPIRED mới có thể gia hạn
+    return dangKy.trangThai === 'ACTIVE' || dangKy.trangThai === 'EXPIRED';
+  };
+
   const getStatusClass = (status) => {
     switch (status) {
       case 'PENDING':
@@ -248,6 +277,8 @@ const DangKyThangPage = () => {
   console.log('📊 currentPageData length:', currentPageData.length);
   console.log('📊 searchTerm:', searchTerm);
   console.log('📊 searchType:', searchType);
+  
+  // Extension chain logic is now handled by optimized isLatestInChain() function
 
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => {
@@ -748,7 +779,7 @@ const DangKyThangPage = () => {
               <button
                 onClick={handleSearch}
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -759,7 +790,7 @@ const DangKyThangPage = () => {
               {/* Add New Button */}
               <button
                 onClick={openAddModal}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -770,7 +801,7 @@ const DangKyThangPage = () => {
               {/* Existing Customer Button */}
               <button
                 onClick={openExistingUserModal}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                className="bg-violet-500 hover:bg-violet-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -781,7 +812,7 @@ const DangKyThangPage = () => {
               {/* Check Validity Button */}
               <button
                 onClick={() => setIsCheckActiveModalOpen(true)}
-                className="bg-blue-100 hover:bg-blue-200 text-blue-800 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-blue-300"
+                className="bg-amber-100 hover:bg-amber-200 text-amber-700 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-amber-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -792,7 +823,7 @@ const DangKyThangPage = () => {
               {/* View Active Button */}
               <button
                 onClick={() => setIsViewActiveModalOpen(true)}
-                className="bg-purple-100 hover:bg-purple-200 text-purple-800 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-purple-300"
+                className="bg-pink-100 hover:bg-pink-200 text-pink-700 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-pink-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -805,7 +836,7 @@ const DangKyThangPage = () => {
               <button
                 onClick={handleUpdateExpiredStatus}
                 disabled={submitting}
-                className="bg-red-100 hover:bg-red-200 disabled:bg-red-50 text-red-800 disabled:text-red-400 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-red-300 disabled:border-red-200"
+                className="bg-rose-100 hover:bg-rose-200 disabled:bg-rose-50 text-rose-700 disabled:text-rose-400 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-rose-200 disabled:border-rose-100"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -816,7 +847,7 @@ const DangKyThangPage = () => {
               {/* Refresh Button */}
               <button
                 onClick={fetchDangKyThangs}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-gray-300"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-colors duration-200 border border-gray-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -917,7 +948,7 @@ const DangKyThangPage = () => {
                               {/* Nút Chi tiết - luôn hiển thị */}
                               <button 
                                 onClick={() => handleViewDetail(item.id)}
-                                className="px-3 py-1 bg-purple-600 text-white text-xs font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-colors duration-150"
+                                className="px-3 py-1 bg-fuchsia-600 text-white text-xs font-medium rounded-md hover:bg-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-fuchsia-500 focus:ring-offset-1 transition-colors duration-150"
                                 title="Xem chi tiết"
                               >
                                 Chi tiết
@@ -926,7 +957,7 @@ const DangKyThangPage = () => {
                               {/* Nút Chuỗi gia hạn - luôn hiển thị */}
                               <button 
                                 onClick={() => handleViewExtensionChain(item)}
-                                className="px-3 py-1 bg-cyan-600 text-white text-xs font-medium rounded-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-1 transition-colors duration-150"
+                                className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1 transition-colors duration-150"
                                 title="Xem lịch sử chuỗi gia hạn"
                               >
                                 Chuỗi gia hạn
@@ -935,7 +966,7 @@ const DangKyThangPage = () => {
                               {/* Nút Lịch sử xe - luôn hiển thị */}
                               <button 
                                 onClick={() => handleViewVehicleHistory(item)}
-                                className="px-3 py-1 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors duration-150"
+                                className="px-3 py-1 bg-sky-600 text-white text-xs font-medium rounded-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-1 transition-colors duration-150"
                                 title="Xem toàn bộ lịch sử của xe này"
                               >
                                 Lịch sử xe
@@ -948,7 +979,7 @@ const DangKyThangPage = () => {
                                   {canPay(item) && (
                                     <button 
                                       onClick={() => handlePayment(item.id)}
-                                      className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors duration-150"
+                                      className="px-3 py-1 bg-amber-500 text-white text-xs font-medium rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-1 transition-colors duration-150"
                                       title="Xử lý thanh toán"
                                     >
                                       Thanh toán
@@ -959,7 +990,7 @@ const DangKyThangPage = () => {
                                   {canEdit(item) && (
                                     <button 
                                       onClick={() => handleUpdateMonths(item)}
-                                      className="px-3 py-1 bg-orange-600 text-white text-xs font-medium rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1 transition-colors duration-150"
+                                      className="px-3 py-1 bg-pink-500 text-white text-xs font-medium rounded-md hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-1 transition-colors duration-150"
                                       title="Cập nhật số tháng (chỉ khi chưa thanh toán)"
                                     >
                                       Sửa số tháng
@@ -977,12 +1008,16 @@ const DangKyThangPage = () => {
                                     </button>
                                   )}
 
-                                  {/* Nút gia hạn thông minh - cho cả ACTIVE và EXPIRED */}
-                                  {(item.trangThai === 'ACTIVE' || item.trangThai === 'EXPIRED') && (
+                                  {/* Nút gia hạn thông minh - theo logic mới */}
+                                  {canSmartExtend(item) && (
                                     <button 
                                       onClick={() => handleSmartExtend(item)}
-                                      className="px-3 py-1 bg-purple-600 text-white text-xs font-medium rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-colors duration-150"
-                                      title="Gia hạn thông minh với logic tự động"
+                                      className="px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-1 transition-colors duration-150"
+                                      title={
+                                        item.trangThai === 'ACTIVE' 
+                                          ? "Gia hạn từ ngày hết hạn hiện tại" 
+                                          : "Gia hạn từ ngày hiện tại (do đã hết hạn)"
+                                      }
                                     >
                                       Gia hạn
                                     </button>

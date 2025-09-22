@@ -35,6 +35,70 @@ class AuthService {
             }
         );
     }
+
+    // Unified login function for both User and Staff
+    static async login(credential, password) {
+        try {
+            console.log('🔐 AuthService: Attempting unified login with credential:', credential);
+            
+            const response = await axios.post(`${API_BASE_URL}/login`, {
+                credential,
+                password
+            });
+
+            console.log('✅ AuthService: Login response:', response.data);
+
+            // Check response format based on backend specification
+            if (response.data && response.data.statusCode === 200 && response.data.data) {
+                const { accessToken, userType, userInfo, staffInfo } = response.data.data;
+                
+                if (!accessToken) {
+                    throw new Error('No access token received');
+                }
+
+                // Store token (note: backend sends accessToken but we store as token)
+                localStorage.setItem('token', accessToken);
+                localStorage.setItem('userType', userType);
+                
+                if (userType === 'USER' && userInfo) {
+                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                    localStorage.setItem('userRole', userInfo.role);
+                    console.log('✅ User login successful:', userInfo);
+                } else if (userType === 'STAFF' && staffInfo) {
+                    localStorage.setItem('staffInfo', JSON.stringify(staffInfo));
+                    localStorage.setItem('userRole', staffInfo.chucVu);
+                    console.log('✅ Staff login successful:', staffInfo);
+                }
+                
+                return {
+                    success: true,
+                    data: response.data.data,
+                    userType,
+                    userInfo: userType === 'USER' ? userInfo : null,
+                    staffInfo: userType === 'STAFF' ? staffInfo : null
+                };
+            } else {
+                throw new Error('Invalid response format from server');
+            }
+            
+        } catch (error) {
+            console.error('❌ AuthService login error:', error);
+            
+            let errorMessage = 'Đăng nhập thất bại';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
+            } else if (error.code === 'ERR_NETWORK') {
+                errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối!';
+            }
+            
+            return {
+                success: false,
+                error: errorMessage
+            };
+        }
+    }
     // Logout function
     static async logout() {
         try {
@@ -83,6 +147,8 @@ class AuthService {
             // Remove any other auth-related data
             localStorage.removeItem('user');
             localStorage.removeItem('userInfo');
+            localStorage.removeItem('staffInfo');
+            localStorage.removeItem('userType');
             localStorage.removeItem('userRole');
             
             // Clear sessionStorage as well
@@ -272,20 +338,83 @@ class AuthService {
         }
     }
     
-    // Get logged in user's name from token
+    // Get logged in user's name from token or stored info
     static getLoggedInUserName() {
         try {
+            const userType = localStorage.getItem('userType');
+            
+            if (userType === 'USER') {
+                const userInfo = localStorage.getItem('userInfo');
+                if (userInfo) {
+                    const parsed = JSON.parse(userInfo);
+                    return parsed.name || parsed.email || 'User';
+                }
+            } else if (userType === 'STAFF') {
+                const staffInfo = localStorage.getItem('staffInfo');
+                if (staffInfo) {
+                    const parsed = JSON.parse(staffInfo);
+                    return parsed.hoTen || parsed.maNV || 'Staff';
+                }
+            }
+            
+            // Fallback to token payload
             const token = this.getToken();
-            if (!token) return 'User';
+            if (token) {
+                const payload = this.getTokenPayload(token);
+                if (payload) {
+                    return payload.sub || 'User';
+                }
+            }
             
-            const payload = this.getTokenPayload(token);
-            if (!payload) return 'User';
-            
-            // Use the 'sub' claim which typically contains the username
-            return payload.sub || 'User';
+            return 'User';
         } catch (error) {
             console.error('Error getting user name:', error);
             return 'User';
+        }
+    }
+
+    // Get current user type
+    static getUserType() {
+        return localStorage.getItem('userType');
+    }
+
+    // Get current user info based on type
+    static getCurrentUserInfo() {
+        try {
+            const userType = this.getUserType();
+            
+            if (userType === 'USER') {
+                const userInfo = localStorage.getItem('userInfo');
+                return userInfo ? JSON.parse(userInfo) : null;
+            } else if (userType === 'STAFF') {
+                const staffInfo = localStorage.getItem('staffInfo');
+                return staffInfo ? JSON.parse(staffInfo) : null;
+            }
+            
+            return null;
+        } catch (error) {
+            console.error('Error getting current user info:', error);
+            return null;
+        }
+    }
+
+    // Get current user role
+    static getCurrentUserRole() {
+        try {
+            const userType = this.getUserType();
+            
+            if (userType === 'USER') {
+                const userInfo = this.getCurrentUserInfo();
+                return userInfo?.role || 'USER';
+            } else if (userType === 'STAFF') {
+                const staffInfo = this.getCurrentUserInfo();
+                return staffInfo?.chucVu || 'STAFF';
+            }
+            
+            return localStorage.getItem('userRole') || 'USER';
+        } catch (error) {
+            console.error('Error getting current user role:', error);
+            return 'USER';
         }
     }
     

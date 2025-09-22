@@ -4,6 +4,7 @@ import {
   LoginPage, 
   HomePage, 
   DashboardPage, 
+  UserDashboardPage,
   UserPage, 
   VehiclePage, 
   VehicleTypePage, 
@@ -38,6 +39,11 @@ function App() {
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <DashboardPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/user/dashboard" element={
+        <ProtectedRoute>
+          <UserDashboardPage />
         </ProtectedRoute>
       } />
       <Route path="/users" element={

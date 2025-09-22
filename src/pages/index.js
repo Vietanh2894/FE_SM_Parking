@@ -2,6 +2,7 @@
 export { default as LoginPage } from './LoginPage';
 export { default as HomePage } from './HomePage';
 export { default as DashboardPage } from './DashboardPage';
+export { default as UserDashboardPage } from './UserDashboardPage';
 export { default as UserPage } from './UserPage';
 export { default as VehiclePage } from './VehiclePage';
 export { default as VehicleTypePage } from './VehicleTypePage';

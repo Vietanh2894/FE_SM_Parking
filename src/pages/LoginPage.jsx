@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AuthService from '../services/authService';
 import '../styles/LoginPage.css';
 
-// Tạo instance API riêng cho login để tránh xung đột với interceptor
-const loginApi = axios.create({
-    baseURL: 'http://localhost:8080',
-    headers: {
-        'Content-Type': 'application/json'
-    }
-});
-
 const LoginPage = () => {
-    const [username, setUsername] = useState('');
+    const [credential, setCredential] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,42 +36,36 @@ const LoginPage = () => {
         setError('');
         
         try {
-            console.log('🔐 Attempting login with username:', username);
-            const response = await loginApi.post('/login', {
-                username,
-                password,
-            });
+            console.log('🔐 Attempting unified login with credential:', credential);
+            
+            // Use AuthService unified login method
+            const result = await AuthService.login(credential, password);
 
-            console.log('✅ Login response:', response.data);
-
-            // Check if response has the correct format
-            // Expected format: { statusCode, error, message, data: { accessToken } }
-            if (response.data && response.data.statusCode === 200 && response.data.data && response.data.data.accessToken) {
-                const token = response.data.data.accessToken;
-                localStorage.setItem('token', token);
-                console.log('✅ Token stored successfully, length:', token.length);
+            if (result.success) {
+                console.log('✅ Login successful:', result);
                 
-                // Redirect to the originally intended page or home
-                const from = location.state?.from?.pathname || '/home';
+                const { userType, userInfo, staffInfo } = result;
+                
+                // Determine redirect path based on user type
+                let redirectPath = '/home';
+                if (userType === 'STAFF') {
+                    redirectPath = '/dashboard'; // Staff goes to dashboard
+                } else if (userType === 'USER') {
+                    redirectPath = '/user/dashboard'; // User goes to user dashboard
+                }
+                
+                // Use the originally intended page if available, otherwise use type-based redirect
+                const from = location.state?.from?.pathname || redirectPath;
                 console.log('🔀 Redirecting to:', from);
+                
                 navigate(from, { replace: true });
             } else {
-                console.error('❌ Login response missing expected data structure');
-                setError('Login failed: Invalid response from server.');
-                console.log('Response structure:', JSON.stringify(response.data, null, 2));
+                console.error('❌ Login failed:', result.error);
+                setError(result.error || 'Đăng nhập thất bại');
             }
         } catch (err) {
             console.error('❌ Login error:', err);
-            
-            if (err.response?.data) {
-                const errorMessage = err.response.data.message || err.response.data.error || 'Login failed';
-                console.log('Error message from server:', errorMessage);
-                setError(errorMessage);
-            } else if (err.code === 'ERR_NETWORK') {
-                setError('Không thể kết nối đến server. Vui lòng kiểm tra kết nối!');
-            } else {
-                setError('Invalid username or password.');
-            }
+            setError('Có lỗi xảy ra trong quá trình đăng nhập. Vui lòng thử lại!');
         } finally {
             setLoading(false);
         }
@@ -102,23 +87,28 @@ const LoginPage = () => {
 
                 <form onSubmit={handleLogin} className="login-form">
                     <div className="form-group">
-                        <label htmlFor="username" className="form-label">
-                            Tên đăng nhập
+                        <label htmlFor="credential" className="form-label">
+                            Email hoặc Tên đăng nhập
                         </label>
                         <div className="input-wrapper">
                             <input
                                 type="text"
-                                id="username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                id="credential"
+                                value={credential}
+                                onChange={(e) => setCredential(e.target.value)}
                                 className="form-input"
-                                placeholder="Nhập tên đăng nhập"
+                                placeholder="Nhập email (cho User) hoặc tên đăng nhập (cho Staff)"
                                 required
                             />
                             <svg className="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                            • Nhập <strong>email</strong> nếu bạn là người dùng
+                            <br />
+                            • Nhập <strong>tên đăng nhập</strong> nếu bạn là nhân viên
+                        </p>
                     </div>
 
                     <div className="form-group">

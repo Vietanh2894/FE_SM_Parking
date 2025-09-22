@@ -5,6 +5,7 @@ import roleService from './roleService';
 import accountService from './accountService';
 import ParkingTransactionService from './parkingTransactionService';
 import dangKyThangService from './dangKyThangService';
+import UserDashboardService from './userDashboardService';
 
 export { default as AuthService } from './authService';
 export { default as staffService } from './staffService';
@@ -12,6 +13,7 @@ export { default as roleService } from './roleService';
 export { default as accountService } from './accountService';
 export { default as ParkingTransactionService } from './parkingTransactionService';
 export { default as dangKyThangService } from './dangKyThangService';
+export { default as UserDashboardService } from './userDashboardService';
 
 export const authService = {
     login: (credentials) => api.post('/auth/login', credentials),

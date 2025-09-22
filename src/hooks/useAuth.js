@@ -13,23 +13,43 @@ export const useAuth = () => {
             console.log('🔒 useAuth authentication result:', authenticated);
             setIsAuthenticated(authenticated);
             
-            // Get user info from localStorage or token
+            // Get user info from localStorage based on userType
             if (authenticated) {
-                const token = localStorage.getItem('token');
-                console.log('🔒 useAuth token check:', !!token);
-                if (token) {
-                    // You can decode token or get user info from localStorage
-                    const userData = localStorage.getItem('user');
-                    console.log('🔒 useAuth user data found:', !!userData);
-                    if (userData) {
-                        const parsedUser = JSON.parse(userData);
-                        console.log('🔒 useAuth setting user:', parsedUser);
-                        setUser(parsedUser);
-                    } else {
-                        // Set a default user object if no user data available
-                        console.log('🔒 useAuth setting default user');
-                        setUser({ name: 'User', email: '' });
+                const userType = localStorage.getItem('userType');
+                console.log('🔒 useAuth user type:', userType);
+                
+                if (userType === 'USER') {
+                    const userInfo = localStorage.getItem('userInfo');
+                    if (userInfo) {
+                        const parsedUser = JSON.parse(userInfo);
+                        console.log('🔒 useAuth setting user info:', parsedUser);
+                        setUser({
+                            ...parsedUser,
+                            type: 'USER'
+                        });
                     }
+                } else if (userType === 'STAFF') {
+                    const staffInfo = localStorage.getItem('staffInfo');
+                    if (staffInfo) {
+                        const parsedStaff = JSON.parse(staffInfo);
+                        console.log('🔒 useAuth setting staff info:', parsedStaff);
+                        setUser({
+                            id: parsedStaff.maNV,
+                            name: parsedStaff.hoTen,
+                            email: parsedStaff.email,
+                            role: parsedStaff.chucVu,
+                            type: 'STAFF'
+                        });
+                    }
+                }
+                
+                // Fallback if no specific user data found
+                if (!localStorage.getItem('userInfo') && !localStorage.getItem('staffInfo')) {
+                    console.log('🔒 useAuth setting default user');
+                    setUser({ 
+                        name: authService.getLoggedInUserName(), 
+                        type: userType || 'USER' 
+                    });
                 }
             } else {
                 console.log('🔒 useAuth clearing user');
@@ -43,26 +63,53 @@ export const useAuth = () => {
         checkAuth();
     }, []);
 
-    const login = async (credentials) => {
+    const login = async (credential, password) => {
         try {
-            const response = await authService.login(credentials);
-            if (response.data.token) {
-                localStorage.setItem('token', response.data.token);
+            const result = await authService.login(credential, password);
+            if (result.success) {
                 setIsAuthenticated(true);
-                return { success: true };
+                
+                // Set user info based on login result
+                const { userType, userInfo, staffInfo } = result;
+                if (userType === 'USER' && userInfo) {
+                    setUser({
+                        ...userInfo,
+                        type: 'USER'
+                    });
+                } else if (userType === 'STAFF' && staffInfo) {
+                    setUser({
+                        id: staffInfo.maNV,
+                        name: staffInfo.hoTen,
+                        email: staffInfo.email,
+                        role: staffInfo.chucVu,
+                        type: 'STAFF'
+                    });
+                }
+                
+                return { success: true, userType, userInfo, staffInfo };
+            } else {
+                return { 
+                    success: false, 
+                    error: result.error || 'Login failed' 
+                };
             }
         } catch (error) {
             return { 
                 success: false, 
-                error: error.response?.data?.message || 'Login failed' 
+                error: error.message || 'Login failed' 
             };
         }
     };
 
-    const logout = () => {
-        authService.logout();
-        setIsAuthenticated(false);
-        setUser(null);
+    const logout = async () => {
+        try {
+            await authService.performLogout();
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            setIsAuthenticated(false);
+            setUser(null);
+        }
     };
 
     return {

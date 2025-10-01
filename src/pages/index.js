@@ -15,3 +15,10 @@ export { default as RolePage } from './RolePage';
 export { default as ParkingTransactionPage } from './ParkingTransactionPage';
 export { default as DangKyThangPage } from './DangKyThangPage';
 
+// Face Recognition Pages
+export { default as FaceRecognitionDemo } from './FaceRecognitionDemo';
+export { default as FaceRegistrationPage } from './FaceRegistrationPage';
+export { default as FaceRecognitionPage } from './FaceRecognitionPage';
+export { default as FaceComparisonPage } from './FaceComparisonPage';
+export { default as FaceManagementPage } from './FaceManagementPage';
+

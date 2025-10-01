@@ -15,9 +15,17 @@ import {
   AccountPage, 
   RolePage, 
   ParkingTransactionPage,
-  DangKyThangPage 
+  DangKyThangPage,
+  FaceRecognitionDemo,
+  FaceRegistrationPage,
+  FaceRecognitionPage,
+  FaceComparisonPage,
+  FaceManagementPage
 } from './pages';
+import FaceApiTester from './components/FaceApiTester';
+import FaceApiTestPage from './pages/FaceApiTestPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import { ToastProvider } from './components/common/NotificationToast';
 import AuthService from './services/authService';
 
 // Initialize auth service interceptors
@@ -25,7 +33,8 @@ AuthService.setupInterceptors();
 
 function App() {
   return (
-    <Routes>
+    <ToastProvider>
+      <Routes>
       {/* Public routes */}
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<LoginPage />} />
@@ -101,9 +110,48 @@ function App() {
           <DangKyThangPage />
         </ProtectedRoute>
       } />
+      
+      {/* Face Recognition routes */}
+      <Route path="/face-api-tester" element={
+        <ProtectedRoute>
+          <FaceApiTester />
+        </ProtectedRoute>
+      } />
+      <Route path="/face-api-test-page" element={
+        <ProtectedRoute>
+          <FaceApiTestPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/face-recognition-demo" element={
+        <ProtectedRoute>
+          <FaceRecognitionDemo />
+        </ProtectedRoute>
+      } />
+      <Route path="/face-registration" element={
+        <ProtectedRoute>
+          <FaceRegistrationPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/face-recognition" element={
+        <ProtectedRoute>
+          <FaceRecognitionPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/face-comparison" element={
+        <ProtectedRoute>
+          <FaceComparisonPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/face-management" element={
+        <ProtectedRoute>
+          <FaceManagementPage />
+        </ProtectedRoute>
+      } />
+      
       {/* Catch all route - redirect to login */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
+    </ToastProvider>
   );
 }
 

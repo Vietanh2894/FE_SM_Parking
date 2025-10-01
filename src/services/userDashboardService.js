@@ -22,10 +22,13 @@ class UserDashboardService {
             console.log('✅ UserDashboard API response:', response.data);
 
             if (response.data && response.data.statusCode === 200 && response.data.data) {
+                // Handle nested response structure: response.data.data contains the actual data
+                const actualData = response.data.data.data; // This contains userInfo, vehicles, etc.
+                
                 return {
                     success: true,
-                    data: response.data.data.data, // Actual dashboard data
-                    message: response.data.message
+                    data: actualData, // Actual dashboard data with userInfo, vehicles, dangKyThangs, summary
+                    message: response.data.data.message || response.data.message
                 };
             } else {
                 throw new Error('Invalid response format from server');
@@ -123,6 +126,65 @@ class UserDashboardService {
         const diffTime = expiry - today;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
+    }
+
+    // Request extension for registration
+    static async requestExtension(dangKyThangId, soThangGiaHan, ghiChu = '') {
+        try {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            console.log('🔄 Sending extension request:', {
+                dangKyThangId,
+                soThangGiaHan,
+                ghiChu
+            });
+
+            const requestData = {
+                dangKyThangId: parseInt(dangKyThangId),
+                soThangGiaHan: parseInt(soThangGiaHan),
+                ghiChu: ghiChu || ''
+            };
+
+            const response = await axios.post(`${API_BASE_URL}/user/request-extension`, requestData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('✅ Extension request response:', response.data);
+
+            if (response.data && response.data.statusCode === 200) {
+                return {
+                    success: true,
+                    message: response.data.message || 'Yêu cầu gia hạn đã được gửi thành công!',
+                    data: response.data.data
+                };
+            } else {
+                throw new Error(response.data.message || 'Invalid response format from server');
+            }
+
+        } catch (error) {
+            console.error('❌ Extension request error:', error);
+            
+            let errorMessage = 'Không thể gửi yêu cầu gia hạn';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
+            } else if (error.code === 'ERR_NETWORK') {
+                errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối!';
+            }
+            
+            return {
+                success: false,
+                error: errorMessage
+            };
+        }
     }
 }
 

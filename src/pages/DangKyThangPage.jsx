@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import dangKyThangService from '../services/dangKyThangService';
 import vehicleTypeService from '../services/vehicleTypeService';
+import { isMockModeEnabled, isApiEnabled, logDevInfo } from '../utils/devConfig';
 import AddDangKyThangModal from '../components/modals/AddDangKyThangModal';
 import EditDangKyThangModal from '../components/modals/EditDangKyThangModal';
 import ExistingUserModal from '../components/modals/ExistingUserModal';
@@ -58,6 +59,15 @@ const DangKyThangPage = () => {
   const fetchDangKyThangs = async () => {
     try {
       setLoading(true);
+      
+      // Skip API call if in mock mode
+      if (isMockModeEnabled() || !isApiEnabled()) {
+        logDevInfo('DangKyThangPage: Skipping API call - using empty data in mock mode');
+        setDangKyThangs([]);
+        showToast('Đang trong chế độ demo - dữ liệu thực tế được hiển thị trong User Dashboard', 'info');
+        return;
+      }
+      
       const result = await dangKyThangService.getAllDangKyThang();
       if (result.success) {
         setDangKyThangs(result.data || []);
@@ -77,6 +87,16 @@ const DangKyThangPage = () => {
 
   const fetchVehicleTypes = async () => {
     try {
+      // Skip API call if in mock mode
+      if (isMockModeEnabled() || !isApiEnabled()) {
+        logDevInfo('DangKyThangPage: Skipping vehicle types API call - using mock data');
+        setVehicleTypes([
+          { id: 1, tenLoaiXe: 'Xe máy', moTa: 'Xe máy thông thường' },
+          { id: 2, tenLoaiXe: 'Xe đạp điện', moTa: 'Xe đạp điện' }
+        ]);
+        return;
+      }
+      
       const data = await vehicleTypeService.getAllVehicleTypes();
       console.log('🚗 Vehicle Types API Response:', data);
       console.log('🚗 Vehicle Types Array:', Array.isArray(data));

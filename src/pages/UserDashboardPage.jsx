@@ -23,6 +23,11 @@ const UserDashboardPage = () => {
     // Filters and views
     const [registrationFilter, setRegistrationFilter] = useState('all'); // all, active, expired, expiring
     const [isRefreshing, setIsRefreshing] = useState(false);
+    
+    // New states for vehicle view
+    const [currentView, setCurrentView] = useState('dashboard'); // dashboard, vehicles, vehicle-history
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
+    const [vehicleRegistrations, setVehicleRegistrations] = useState([]);
 
     useEffect(() => {
         // Check if user is authenticated
@@ -170,6 +175,35 @@ const UserDashboardPage = () => {
             default:
                 return registrations;
         }
+    };
+
+    // Handler for showing vehicles
+    const handleShowVehicles = () => {
+        setCurrentView('vehicles');
+    };
+
+    // Handler for showing vehicle registration history
+    const handleShowVehicleHistory = (vehicle) => {
+        setSelectedVehicle(vehicle);
+        
+        // Filter registrations for this specific vehicle
+        const vehicleRegs = registrations ? registrations.filter(reg => reg.bienSoXe === vehicle.bienSoXe) : [];
+        setVehicleRegistrations(vehicleRegs);
+        setCurrentView('vehicle-history');
+    };
+
+    // Handler for going back to dashboard
+    const handleBackToDashboard = () => {
+        setCurrentView('dashboard');
+        setSelectedVehicle(null);
+        setVehicleRegistrations([]);
+    };
+
+    // Handler for going back to vehicles list
+    const handleBackToVehicles = () => {
+        setCurrentView('vehicles');
+        setSelectedVehicle(null);
+        setVehicleRegistrations([]);
     };
 
     if (isLoading) {
@@ -327,13 +361,128 @@ const UserDashboardPage = () => {
                     </div>
                 )}
 
-                {/* Registration Cards */}
-                <div className="mb-8">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-lg font-semibold text-gray-900">Đăng ký xe của bạn</h2>
+                {/* Dynamic Content Based on Current View */}
+                {currentView === 'dashboard' && (
+                    <div className="mb-8">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-lg font-semibold text-gray-900">Quản lý xe của bạn</h2>
+                            <button
+                                onClick={handleShowVehicles}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                            >
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                Xe của tôi
+                            </button>
+                        </div>
+                        
+                        <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                            <div className="text-gray-400 mb-4">
+                                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <p className="text-gray-500 text-lg">Quản lý thông tin xe của bạn</p>
+                            <p className="text-gray-400 text-sm mt-1">
+                                Click vào "Xe của tôi" để xem danh sách xe và lịch sử đăng ký tháng
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {currentView === 'vehicles' && (
+                    <div className="mb-8">
+                        <div className="flex items-center mb-6">
+                            <button
+                                onClick={handleBackToDashboard}
+                                className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <h2 className="text-lg font-semibold text-gray-900">Danh sách xe của bạn</h2>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {vehicles && vehicles.length > 0 ? vehicles.map((vehicle) => (
+                                <div key={vehicle.bienSoXe} className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                                    <div className="flex items-center mb-4">
+                                        <div className="bg-blue-100 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900">{vehicle.bienSoXe}</h3>
+                                            <p className="text-sm text-gray-600">{vehicle.tenXe}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="mb-4 space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-600">Loại xe:</span>
+                                            <span className="font-medium">{vehicle.tenLoaiXe}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-600">Trạng thái:</span>
+                                            <span className={`font-medium ${vehicle.hasActiveDangKy ? 'text-green-600' : 'text-red-600'}`}>
+                                                {vehicle.hasActiveDangKy ? 'Đang hoạt động' : 'Không hoạt động'}
+                                            </span>
+                                        </div>
+                                        {vehicle.hasActiveDangKy && vehicle.dangKyExpiry && (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-600">Hết hạn:</span>
+                                                <span className="font-medium">{new Date(vehicle.dangKyExpiry).toLocaleDateString('vi-VN')}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <button
+                                        onClick={() => handleShowVehicleHistory(vehicle)}
+                                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                                    >
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        Lịch sử đăng ký tháng
+                                    </button>
+                                </div>
+                            )) : (
+                                <div className="col-span-full text-center py-12">
+                                    <div className="text-gray-400 mb-4">
+                                        <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                    </div>
+                                    <p className="text-gray-500 text-lg">Không có xe nào</p>
+                                    <p className="text-gray-400 text-sm mt-1">Bạn chưa đăng ký xe nào trong hệ thống</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {currentView === 'vehicle-history' && selectedVehicle && (
+                    <div className="mb-8">
+                        <div className="flex items-center mb-6">
+                            <button
+                                onClick={handleBackToVehicles}
+                                className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <div>
+                                <h2 className="text-lg font-semibold text-gray-900">Lịch sử đăng ký tháng</h2>
+                                <p className="text-sm text-gray-600">{selectedVehicle.bienSoXe} - {selectedVehicle.tenXe}</p>
+                            </div>
+                        </div>
                         
                         {/* Filter Tabs */}
-                        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+                        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-6 w-fit">
                             {[
                                 { key: 'all', label: 'Tất cả' },
                                 { key: 'active', label: 'Hoạt động' },
@@ -353,41 +502,43 @@ const UserDashboardPage = () => {
                                 </button>
                             ))}
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {getFilteredRegistrations().map((registration) => (
-                            <RegistrationCard
-                                key={registration.id}
-                                registration={registration}
-                                pendingRequests={pendingExtensions}
-                                onExtensionRequest={handleExtensionRequest}
-                                showDetails={true}
-                            />
-                        ))}
-                    </div>
-
-                    {getFilteredRegistrations().length === 0 && (
-                        <div className="text-center py-12">
-                            <div className="text-gray-400 mb-4">
-                                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <p className="text-gray-500 text-lg">Không có đăng ký nào</p>
-                            <p className="text-gray-400 text-sm mt-1">
-                                {registrationFilter === 'all' 
-                                    ? 'Bạn chưa có đăng ký xe nào.'
-                                    : `Không có đăng ký nào ở trạng thái "${
-                                        registrationFilter === 'active' ? 'hoạt động' :
-                                        registrationFilter === 'expiring' ? 'sắp hết hạn' :
-                                        'hết hạn'
-                                    }".`
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {vehicleRegistrations.filter(reg => {
+                                switch (registrationFilter) {
+                                    case 'active':
+                                        return reg.trangThai === 'Đang hiệu lực' || reg.active === true;
+                                    case 'expired':
+                                        return reg.trangThai === 'Hết hạn' || reg.expired === true;
+                                    case 'expiring':
+                                        return (reg.trangThai === 'Đang hiệu lực' || reg.active === true) && reg.daysUntilExpiry <= 30;
+                                    default:
+                                        return true;
                                 }
-                            </p>
+                            }).map((registration) => (
+                                <RegistrationCard
+                                    key={registration.id}
+                                    registration={registration}
+                                    pendingRequests={pendingExtensions}
+                                    onExtensionRequest={handleExtensionRequest}
+                                    showDetails={true}
+                                />
+                            ))}
                         </div>
-                    )}
-                </div>
+
+                        {vehicleRegistrations.length === 0 && (
+                            <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                                <div className="text-gray-400 mb-4">
+                                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <p className="text-gray-500 text-lg">Không có đăng ký nào</p>
+                                <p className="text-gray-400 text-sm mt-1">Xe này chưa có lịch sử đăng ký tháng nào</p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </main>
 
             {/* Extension Request Modal */}

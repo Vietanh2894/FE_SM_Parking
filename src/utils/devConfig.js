@@ -77,6 +77,22 @@ export const DEV_CONFIG = {
             ngayXuLy: null,
             ghiChuAdmin: null
         }
+    ],
+
+    // Demo vehicle types
+    MOCK_VEHICLE_TYPES: [
+        {
+            maLoaiXe: 'LX001',
+            tenLoaiXe: 'Xe máy',
+            moTa: 'Xe máy các loại',
+            giaThang: 200000
+        },
+        {
+            maLoaiXe: 'LX002',
+            tenLoaiXe: 'Xe ô tô',
+            moTa: 'Xe ô tô các loại',
+            giaThang: 500000
+        }
     ]
 };
 

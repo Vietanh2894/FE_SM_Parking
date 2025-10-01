@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import AuthService from '../services/authService';
 import UserDashboardService from '../services/userDashboardService';
 import ExtensionRequestModal from '../components/modals/ExtensionRequestModal';
+import CreateVehicleModal from '../components/modals/CreateVehicleModal';
+import CreateMonthlyRegistrationModal from '../components/modals/CreateMonthlyRegistrationModal';
 import RegistrationCard from '../components/common/RegistrationCard';
 import PendingRequestList from '../components/common/PendingRequestList';
 import NotificationToast, { useToast } from '../components/common/NotificationToast';
@@ -19,6 +21,9 @@ const UserDashboardPage = () => {
     // Modal states
     const [isExtensionModalOpen, setIsExtensionModalOpen] = useState(false);
     const [selectedRegistration, setSelectedRegistration] = useState(null);
+    const [isCreateVehicleModalOpen, setIsCreateVehicleModalOpen] = useState(false);
+    const [isCreateRegistrationModalOpen, setIsCreateRegistrationModalOpen] = useState(false);
+    const [selectedVehicleForRegistration, setSelectedVehicleForRegistration] = useState(null);
 
     // Filters and views
     const [registrationFilter, setRegistrationFilter] = useState('all'); // all, active, expired, expiring
@@ -204,6 +209,48 @@ const UserDashboardPage = () => {
         setCurrentView('vehicles');
         setSelectedVehicle(null);
         setVehicleRegistrations([]);
+    };
+
+    // Handler for showing create vehicle modal
+    const handleShowCreateVehicle = () => {
+        setIsCreateVehicleModalOpen(true);
+    };
+
+    // Handler for create vehicle success
+    const handleCreateVehicleSuccess = () => {
+        setIsCreateVehicleModalOpen(false);
+        
+        // Show success notification
+        toast?.showSuccess(
+            'Tạo xe mới thành công!',
+            'Thành công!',
+            'Xe đã được thêm vào danh sách của bạn.'
+        );
+        
+        // Reload dashboard to update data
+        loadDashboardData();
+    };
+
+    // Handler for showing create registration modal
+    const handleShowCreateRegistration = (vehicle = null) => {
+        setSelectedVehicleForRegistration(vehicle);
+        setIsCreateRegistrationModalOpen(true);
+    };
+
+    // Handler for create registration success
+    const handleCreateRegistrationSuccess = () => {
+        setIsCreateRegistrationModalOpen(false);
+        setSelectedVehicleForRegistration(null);
+        
+        // Show success notification
+        toast?.showSuccess(
+            'Yêu cầu đăng ký tháng đã được gửi thành công!',
+            'Thành công!',
+            'Chúng tôi sẽ xem xét và phản hồi sớm nhất có thể.'
+        );
+        
+        // Reload dashboard to update data
+        loadDashboardData();
     };
 
     if (isLoading) {
@@ -393,16 +440,39 @@ const UserDashboardPage = () => {
 
                 {currentView === 'vehicles' && (
                     <div className="mb-8">
-                        <div className="flex items-center mb-6">
-                            <button
-                                onClick={handleBackToDashboard}
-                                className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                            <h2 className="text-lg font-semibold text-gray-900">Danh sách xe của bạn</h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center">
+                                <button
+                                    onClick={handleBackToDashboard}
+                                    className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <h2 className="text-lg font-semibold text-gray-900">Danh sách xe của bạn</h2>
+                            </div>
+                            
+                            <div className="flex space-x-3">
+                                <button
+                                    onClick={() => handleShowCreateRegistration()}
+                                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Đăng ký tháng
+                                </button>
+                                <button
+                                    onClick={handleShowCreateVehicle}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                                >
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Tạo xe mới
+                                </button>
+                            </div>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -439,15 +509,29 @@ const UserDashboardPage = () => {
                                         )}
                                     </div>
                                     
-                                    <button
-                                        onClick={() => handleShowVehicleHistory(vehicle)}
-                                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-                                    >
-                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        Lịch sử đăng ký tháng
-                                    </button>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => handleShowVehicleHistory(vehicle)}
+                                            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                                        >
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Lịch sử
+                                        </button>
+                                        
+                                        {!vehicle.hasActiveDangKy && (
+                                            <button
+                                                onClick={() => handleShowCreateRegistration(vehicle)}
+                                                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                                            >
+                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                </svg>
+                                                Đăng ký
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             )) : (
                                 <div className="col-span-full text-center py-12">
@@ -551,6 +635,30 @@ const UserDashboardPage = () => {
                     }}
                     selectedRegistration={selectedRegistration}
                     onSuccess={handleExtensionSuccess}
+                />
+            )}
+
+            {/* Create Vehicle Modal */}
+            {isCreateVehicleModalOpen && (
+                <CreateVehicleModal
+                    isOpen={isCreateVehicleModalOpen}
+                    onClose={() => setIsCreateVehicleModalOpen(false)}
+                    onSuccess={handleCreateVehicleSuccess}
+                    vehicleTypes={DEV_CONFIG.MOCK_VEHICLE_TYPES}
+                />
+            )}
+
+            {/* Create Monthly Registration Modal */}
+            {isCreateRegistrationModalOpen && (
+                <CreateMonthlyRegistrationModal
+                    isOpen={isCreateRegistrationModalOpen}
+                    onClose={() => {
+                        setIsCreateRegistrationModalOpen(false);
+                        setSelectedVehicleForRegistration(null);
+                    }}
+                    onSuccess={handleCreateRegistrationSuccess}
+                    selectedVehicle={selectedVehicleForRegistration}
+                    userVehicles={vehicles || []}
                 />
             )}
         </div>

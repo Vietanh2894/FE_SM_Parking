@@ -186,6 +186,120 @@ class UserDashboardService {
             };
         }
     }
+
+    // Create new vehicle for user
+    static async createVehicle(vehicleData) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            console.log('🔄 Creating new vehicle:', vehicleData);
+
+            const requestData = {
+                bienSoXe: vehicleData.bienSoXe.trim(),
+                tenXe: vehicleData.tenXe.trim(),
+                soCavet: vehicleData.soCavet?.trim() || '',
+                maLoaiXe: vehicleData.maLoaiXe
+            };
+
+            const response = await axios.post(`${API_BASE_URL}/user/vehicles`, requestData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('✅ Create vehicle response:', response.data);
+
+            if (response.data && response.data.statusCode === 201) {
+                return {
+                    success: true,
+                    message: response.data.message || 'Tạo xe mới thành công!',
+                    data: response.data.data
+                };
+            } else {
+                throw new Error(response.data.message || 'Invalid response format from server');
+            }
+
+        } catch (error) {
+            console.error('❌ Create vehicle error:', error);
+            
+            let errorMessage = 'Không thể tạo xe mới';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
+            } else if (error.code === 'ERR_NETWORK') {
+                errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối!';
+            }
+            
+            return {
+                success: false,
+                error: errorMessage
+            };
+        }
+    }
+
+    // Request monthly registration for vehicle
+    static async requestMonthlyRegistration(registrationData) {
+        try {
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                throw new Error('No authentication token found');
+            }
+
+            console.log('🔄 Requesting monthly registration:', registrationData);
+
+            const requestData = {
+                bienSoXe: registrationData.bienSoXe.trim(),
+                soThang: parseInt(registrationData.soThang),
+                ghiChu: registrationData.ghiChu?.trim() || '',
+                ngayBatDauMongMuon: registrationData.ngayBatDauMongMuon || '',
+                soCavet: registrationData.soCavet?.trim() || '',
+                maLoaiXe: registrationData.maLoaiXe
+            };
+
+            const response = await axios.post(`${API_BASE_URL}/user/monthly-registration-request`, requestData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('✅ Monthly registration request response:', response.data);
+
+            if (response.data && response.data.statusCode === 200) {
+                return {
+                    success: true,
+                    message: response.data.message || 'Yêu cầu đăng ký tháng đã được gửi thành công!',
+                    data: response.data.data
+                };
+            } else {
+                throw new Error(response.data.message || 'Invalid response format from server');
+            }
+
+        } catch (error) {
+            console.error('❌ Monthly registration request error:', error);
+            
+            let errorMessage = 'Không thể gửi yêu cầu đăng ký tháng';
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.message) {
+                errorMessage = error.message;
+            } else if (error.code === 'ERR_NETWORK') {
+                errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối!';
+            }
+            
+            return {
+                success: false,
+                error: errorMessage
+            };
+        }
+    }
 }
 
 export default UserDashboardService;

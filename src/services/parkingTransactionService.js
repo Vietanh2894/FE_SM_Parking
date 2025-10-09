@@ -22,6 +22,36 @@ class ParkingTransactionService {
         }
     }
 
+    static async directVehicleEntryWithFace(entryData) {
+        try {
+            console.log('🔍 directVehicleEntryWithFace API Call:', '/parking-transactions/direct-entry-with-face');
+            console.log('🔍 Request data:', {
+                ...entryData,
+                faceImageBase64: entryData.faceImageBase64 ? `[Base64 Image - ${entryData.faceImageBase64.length} chars]` : null
+            });
+
+            const response = await api.post('/parking-transactions/direct-entry-with-face', entryData);
+            
+            console.log('🔍 directVehicleEntryWithFace API Response:', response);
+            
+            // Backend trả về { statusCode, error, message, data: { success, faceSimilarityEntry, message, faceVerificationStatus, transaction } }
+            return {
+                success: true,
+                data: response.data.data.transaction,
+                message: response.data.data.message,
+                faceSimilarityEntry: response.data.data.faceSimilarityEntry,
+                faceVerificationStatus: response.data.data.faceVerificationStatus
+            };
+        } catch (error) {
+            console.error('🚨 Error in directVehicleEntryWithFace:', error);
+            return {
+                success: false,
+                message: error.response?.data?.message || error.response?.data?.error || 'Lỗi khi cho xe vào bãi với Face Recognition',
+                error: error
+            };
+        }
+    }
+
     static async checkVehicleStatus(bienSoXe) {
         try {
             const response = await api.get(`/parking-transactions/check-vehicle-status/${bienSoXe}`);
@@ -52,6 +82,37 @@ class ParkingTransactionService {
             return {
                 success: false,
                 message: error.response?.data?.message || error.response?.data?.error || 'Lỗi khi cho xe ra bãi',
+                error: error
+            };
+        }
+    }
+
+    static async directVehicleExitWithFace(exitData) {
+        try {
+            console.log('🔍 directVehicleExitWithFace API Call:', '/parking-transactions/direct-exit-with-face');
+            console.log('🔍 Request data:', {
+                ...exitData,
+                faceImageBase64: exitData.faceImageBase64 ? `[Base64 Image - ${exitData.faceImageBase64.length} chars]` : null
+            });
+
+            const response = await api.post('/parking-transactions/direct-exit-with-face', exitData);
+            
+            console.log('🔍 directVehicleExitWithFace API Response:', response);
+            
+            // Backend trả về { statusCode, error, message, data: { success, soTienThanhToan, faceSimilarityExit, message, faceVerificationStatus, transaction } }
+            return {
+                success: true,
+                data: response.data.data.transaction,
+                message: response.data.data.message,
+                soTienThanhToan: response.data.data.soTienThanhToan,
+                faceSimilarityExit: response.data.data.faceSimilarityExit,
+                faceVerificationStatus: response.data.data.faceVerificationStatus
+            };
+        } catch (error) {
+            console.error('🚨 Error in directVehicleExitWithFace:', error);
+            return {
+                success: false,
+                message: error.response?.data?.message || error.response?.data?.error || 'Lỗi khi cho xe ra bãi với Face Recognition',
                 error: error
             };
         }

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { AddAccountModal, EditAccountModal, ConfirmationPopup } from '../components';
+import AddAccountModal from '../components/modals/AddAccountModal';
+import EditAccountModal from '../components/modals/EditAccountModal';
+import ConfirmationPopup from '../components/common/ConfirmationPopup';
 import DashboardNavigation from '../components/DashboardNavigation';
 
 // API instance để đồng nhất base URL

@@ -21,4 +21,5 @@ export { default as FaceRegistrationPage } from './FaceRegistrationPage';
 export { default as FaceRecognitionPage } from './FaceRecognitionPage';
 export { default as FaceComparisonPage } from './FaceComparisonPage';
 export { default as FaceManagementPage } from './FaceManagementPage';
+export { default as FaceRecognitionTestPage } from './FaceRecognitionTestPage';
 

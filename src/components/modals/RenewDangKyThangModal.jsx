@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { dangKyThangService } from '../../services';
+import dangKyThangService from '../../services/dangKyThangService';
 
 const RenewDangKyThangModal = ({ 
   isOpen, 

@@ -359,13 +359,30 @@ const DangKyThangPage = () => {
       setSubmitting(true);
       console.log('🔍 Creating new DangKyThang with data:', newItem);
       
-      const result = await dangKyThangService.createDangKyThang(newItem);
+      let result;
+      
+      // Check if Face Recognition is enabled
+      if (newItem.enableFaceRecognition && newItem.faceImageBase64) {
+        console.log('🔍 Using Face Recognition API');
+        result = await dangKyThangService.createDangKyThangWithFace(newItem);
+      } else {
+        console.log('🔍 Using regular API');
+        result = await dangKyThangService.createDangKyThang(newItem);
+      }
+      
       console.log('🔍 API Result:', result);
       
       if (result.success) {
         await fetchDangKyThangs();
         closeAddModal();
-        showToast('Thêm đăng ký tháng thành công!', 'success');
+        
+        // Enhanced success message for Face Recognition
+        if (newItem.enableFaceRecognition) {
+          const faceInfo = result.data?.faceId ? ` (Face ID: ${result.data.faceId})` : '';
+          showToast(`Thêm đăng ký tháng với Face Recognition thành công!${faceInfo}`, 'success');
+        } else {
+          showToast('Thêm đăng ký tháng thành công!', 'success');
+        }
       } else {
         showToast(result.message || 'Có lỗi xảy ra khi thêm đăng ký tháng', 'error');
       }

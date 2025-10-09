@@ -77,6 +77,38 @@ const dangKyThangService = {
         }
     },
 
+    // Tạo mới đăng ký tháng với Face Recognition
+    async createDangKyThangWithFace(data) {
+        try {
+            console.log('🔍 createDangKyThangWithFace API Call:', '/dang-ky-thang/with-face');
+            console.log('🔍 Request data:', {
+                ...data,
+                faceImageBase64: data.faceImageBase64 ? `[Base64 Image - ${data.faceImageBase64.length} chars]` : null
+            });
+            
+            const response = await api.post('/dang-ky-thang/with-face', data);
+            
+            console.log('🔍 createDangKyThangWithFace API Response:', response);
+            console.log('🔍 Response data:', response.data);
+            
+            return {
+                success: true,
+                data: response.data.data || response.data,
+                message: response.data.message || 'Tạo đăng ký tháng với Face Recognition thành công'
+            };
+        } catch (error) {
+            console.error('🚨 Error in createDangKyThangWithFace:', error);
+            console.error('🚨 Error response:', error.response);
+            console.error('🚨 Error response data:', error.response?.data);
+            
+            return {
+                success: false,
+                data: null,
+                message: error.response?.data?.message || error.response?.data || (typeof error.response?.data === 'string' ? error.response?.data : 'Tạo đăng ký tháng với Face Recognition thất bại')
+            };
+        }
+    },
+
     // Lấy đăng ký tháng theo ID
     async getDangKyThangById(id) {
         try {

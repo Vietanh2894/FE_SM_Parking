@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import ImageUploadWithPreview from '../common/ImageUploadWithPreview';
+import FaceRecognitionStatus from '../common/FaceRecognitionStatus';
 
 const AddDangKyThangModal = ({ isOpen, onSave, onClose, isSubmitting = false, vehicleTypes = [] }) => {
     // Ensure vehicleTypes is an array
@@ -9,6 +11,7 @@ const AddDangKyThangModal = ({ isOpen, onSave, onClose, isSubmitting = false, ve
     console.log('🏎️ AddDangKyThangModal - safeVehicleTypes:', safeVehicleTypes);
     console.log('🏎️ AddDangKyThangModal - safeVehicleTypes length:', safeVehicleTypes.length);
     console.log('🏎️ AddDangKyThangModal - first item structure:', safeVehicleTypes[0]);
+    
     const [formData, setFormData] = useState({
         bienSoXe: '',
         tenXe: '',
@@ -25,6 +28,11 @@ const AddDangKyThangModal = ({ isOpen, onSave, onClose, isSubmitting = false, ve
         tuDongNgayBatDau: true,
         ngayBatDau: ''
     });
+
+    // Face Recognition states
+    const [enableFaceRecognition, setEnableFaceRecognition] = useState(false);
+    const [faceImageBase64, setFaceImageBase64] = useState(null);
+    const [faceRecognitionResult, setFaceRecognitionResult] = useState(null);
 
     // Reset form when modal is closed/opened
     useEffect(() => {
@@ -51,11 +59,34 @@ const AddDangKyThangModal = ({ isOpen, onSave, onClose, isSubmitting = false, ve
             tuDongNgayBatDau: true,
             ngayBatDau: ''
         });
+        setEnableFaceRecognition(false);
+        setFaceImageBase64(null);
+        setFaceRecognitionResult(null);
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFaceRecognitionToggle = (checked) => {
+        setEnableFaceRecognition(checked);
+        if (!checked) {
+            setFaceImageBase64(null);
+            setFaceRecognitionResult(null);
+        }
+    };
+
+    const handleImageChange = (base64String, file) => {
+        setFaceImageBase64(base64String);
+        // Reset previous result when new image is uploaded
+        setFaceRecognitionResult(null);
+        
+        console.log('🖼️ Face image uploaded:', {
+            hasImage: !!base64String,
+            fileSize: file ? `${(file.size / 1024).toFixed(1)}KB` : null,
+            fileName: file?.name
+        });
     };
 
     const handleSubmit = (e) => {
@@ -72,6 +103,12 @@ const AddDangKyThangModal = ({ isOpen, onSave, onClose, isSubmitting = false, ve
         // Validate custom start date
         if (!formData.tuDongNgayBatDau && !formData.ngayBatDau) {
             alert('Vui lòng chọn ngày bắt đầu');
+            return;
+        }
+
+        // Validate Face Recognition
+        if (enableFaceRecognition && !faceImageBase64) {
+            alert('Vui lòng chọn ảnh khuôn mặt khi bật Face Recognition');
             return;
         }
 
@@ -92,15 +129,23 @@ const AddDangKyThangModal = ({ isOpen, onSave, onClose, isSubmitting = false, ve
             // Date handling fields
             tuDongNgayBatDau: formData.tuDongNgayBatDau,
             ...(formData.tuDongNgayBatDau ? {} : { ngayBatDau: formData.ngayBatDau }),
+            // Face Recognition fields
+            enableFaceRecognition: enableFaceRecognition,
+            ...(enableFaceRecognition && faceImageBase64 ? { faceImageBase64 } : {}),
             // Trạng thái mặc định cho đăng ký mới
             trangThaiThanhToan: 'PENDING',
             trangThai: 'PENDING'
         };
 
-        console.log('📅 AddDangKyThangModal - submitting data with date options:', {
+        console.log('📅 AddDangKyThangModal - submitting data with face recognition:', {
             tuDongNgayBatDau: dangKyThangData.tuDongNgayBatDau,
             ngayBatDau: dangKyThangData.ngayBatDau,
-            fullData: dangKyThangData
+            enableFaceRecognition: dangKyThangData.enableFaceRecognition,
+            hasFaceImage: !!dangKyThangData.faceImageBase64,
+            fullData: {
+                ...dangKyThangData,
+                faceImageBase64: dangKyThangData.faceImageBase64 ? '[Base64 Image Data]' : null
+            }
         });
         onSave(dangKyThangData);
         // Don't reset form here - let parent handle success/failure
@@ -378,6 +423,56 @@ const AddDangKyThangModal = ({ isOpen, onSave, onClose, isSubmitting = false, ve
                                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition-colors duration-200 text-gray-700"
                             />
                         </div>
+                    </div>
+
+                    {/* Face Recognition Section */}
+                    <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-800">Face Recognition</h3>
+                                    <p className="text-sm text-gray-600">Bật tính năng nhận diện khuôn mặt cho chủ xe</p>
+                                </div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={enableFaceRecognition}
+                                    onChange={(e) => handleFaceRecognitionToggle(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+
+                        {enableFaceRecognition && (
+                            <div className="space-y-4">
+                                <ImageUploadWithPreview
+                                    onImageChange={handleImageChange}
+                                    label="Ảnh khuôn mặt chủ xe"
+                                    isRequired={true}
+                                    accept="image/*"
+                                    previewClassName="w-24 h-24"
+                                    disabled={isSubmitting}
+                                />
+
+                                {faceRecognitionResult && (
+                                    <FaceRecognitionStatus
+                                        isEnabled={enableFaceRecognition}
+                                        similarity={faceRecognitionResult.faceSimilarity}
+                                        status={faceRecognitionResult.faceVerificationStatus}
+                                        faceId={faceRecognitionResult.faceId}
+                                        className="mt-3"
+                                    />
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Actions */}

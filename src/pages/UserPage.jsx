@@ -329,7 +329,7 @@ const UserPage = () => {
                             >
                                 🔄 Clear
                             </button>
-                            <button
+                            {/* <button
                                 onClick={() => {
                                     console.log('Add User button clicked');
                                     setIsAddModalOpen(true);
@@ -337,7 +337,7 @@ const UserPage = () => {
                                 className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2.5 px-5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
                             >
                                 ➕ Add User
-                            </button>
+                            </button> */}
                             <button
                                 onClick={() => {
                                     console.log('Edit Mode button clicked, current mode:', isEditMode);

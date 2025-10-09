@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { AddRoleModal, EditRoleModal, ConfirmationPopup } from '../components';
+import AddRoleModal from '../components/modals/AddRoleModal';
+import EditRoleModal from '../components/modals/EditRoleModal';
+import ConfirmationPopup from '../components/common/ConfirmationPopup';
 import DashboardNavigation from '../components/DashboardNavigation';
 
 const RolePage = () => {

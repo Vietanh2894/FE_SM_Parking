@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ParkingTransactionService from '../../services/parkingTransactionService';
 import Toast from '../common/Toast';
+import ImageUploadWithPreview from '../common/ImageUploadWithPreview';
+import FaceRecognitionStatus from '../common/FaceRecognitionStatus';
 
 const VehicleEntryModal = ({ isOpen, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -13,6 +15,12 @@ const VehicleEntryModal = ({ isOpen, onClose, onSuccess }) => {
     const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
     const [vehicleStatus, setVehicleStatus] = useState(null);
     const [checkingStatus, setCheckingStatus] = useState(false);
+
+    // Face Recognition states
+    const [enableFaceRecognition, setEnableFaceRecognition] = useState(false);
+    const [faceImageBase64, setFaceImageBase64] = useState(null);
+    const [faceRecognitionResult, setFaceRecognitionResult] = useState(null);
+    const [faceProcessing, setFaceProcessing] = useState(false);
 
     // Parking lots và vehicle types từ backend API thực
     const [parkingLots] = useState([
@@ -100,6 +108,12 @@ const VehicleEntryModal = ({ isOpen, onClose, onSuccess }) => {
             return;
         }
 
+        // Validate Face Recognition
+        if (enableFaceRecognition && !faceImageBase64) {
+            showToast('Vui lòng chọn ảnh khuôn mặt khi bật Face Recognition', 'error');
+            return;
+        }
+
         // Check if vehicle is already parked
         if (vehicleStatus && vehicleStatus.isCurrentlyParked) {
             showToast('Xe đang đỗ trong bãi, không thể cho vào!', 'error');
@@ -107,22 +121,50 @@ const VehicleEntryModal = ({ isOpen, onClose, onSuccess }) => {
         }
 
         setLoading(true);
+        setFaceProcessing(enableFaceRecognition);
+        
         try {
-            const response = await ParkingTransactionService.directVehicleEntry(formData);
+            let response;
+            
+            if (enableFaceRecognition && faceImageBase64) {
+                // Use Face Recognition API
+                const entryDataWithFace = {
+                    ...formData,
+                    faceImageBase64
+                };
+                
+                response = await ParkingTransactionService.directVehicleEntryWithFace(entryDataWithFace);
+                
+                if (response.success) {
+                    // Set face recognition result
+                    setFaceRecognitionResult({
+                        faceId: response.data.faceIdEntry,
+                        faceSimilarity: response.faceSimilarityEntry,
+                        faceVerificationStatus: response.faceVerificationStatus
+                    });
+                }
+            } else {
+                // Use regular API
+                response = await ParkingTransactionService.directVehicleEntry(formData);
+            }
             
             if (response.success) {
-                showToast('Cho xe vào bãi đỗ thành công!', 'success');
+                const successMessage = enableFaceRecognition 
+                    ? `Cho xe vào bãi đỗ với Face Recognition thành công! ${response.message || ''}`
+                    : 'Cho xe vào bãi đỗ thành công!';
+                    
+                showToast(successMessage, 'success');
                 
                 // Call success callback để cập nhật danh sách
                 if (onSuccess) {
                     onSuccess(response.data); // response.data chứa transaction data
                 }
                 
-                // Reset form và đóng modal sau 1.5s để user thấy thông báo thành công
+                // Reset form và đóng modal sau 2s để user thấy kết quả face recognition
                 setTimeout(() => {
                     handleReset();
                     onClose();
-                }, 1500);
+                }, enableFaceRecognition ? 2500 : 1500);
             } else {
                 showToast(response.message || 'Có lỗi xảy ra khi cho xe vào', 'error');
             }
@@ -136,6 +178,7 @@ const VehicleEntryModal = ({ isOpen, onClose, onSuccess }) => {
             );
         } finally {
             setLoading(false);
+            setFaceProcessing(false);
         }
     };
 
@@ -147,11 +190,34 @@ const VehicleEntryModal = ({ isOpen, onClose, onSuccess }) => {
             ghiChu: 'Scan từ camera'
         });
         setVehicleStatus(null);
+        setEnableFaceRecognition(false);
+        setFaceImageBase64(null);
+        setFaceRecognitionResult(null);
+        setFaceProcessing(false);
     };
 
     const handleClose = () => {
         handleReset();
         onClose();
+    };
+
+    const handleFaceRecognitionToggle = (checked) => {
+        setEnableFaceRecognition(checked);
+        if (!checked) {
+            setFaceImageBase64(null);
+            setFaceRecognitionResult(null);
+        }
+    };
+
+    const handleImageChange = (base64String, file) => {
+        setFaceImageBase64(base64String);
+        setFaceRecognitionResult(null); // Reset previous result
+        
+        console.log('🖼️ Face image uploaded for vehicle entry:', {
+            hasImage: !!base64String,
+            fileSize: file ? `${(file.size / 1024).toFixed(1)}KB` : null,
+            fileName: file?.name
+        });
     };
 
     // Filter parking lots based on selected vehicle type
@@ -300,6 +366,69 @@ const VehicleEntryModal = ({ isOpen, onClose, onSuccess }) => {
                             rows={3}
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                         />
+                    </div>
+
+                    {/* Face Recognition Section */}
+                    <div className="border-t border-gray-200 pt-4">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
+                                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-800">Face Recognition</h3>
+                                        <p className="text-xs text-gray-600">Xác thực khuôn mặt khi xe vào</p>
+                                    </div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={enableFaceRecognition}
+                                        onChange={(e) => handleFaceRecognitionToggle(e.target.checked)}
+                                        className="sr-only peer"
+                                        disabled={loading}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            {enableFaceRecognition && (
+                                <div className="space-y-4">
+                                    <ImageUploadWithPreview
+                                        onImageChange={handleImageChange}
+                                        label="Ảnh khuôn mặt người lái xe"
+                                        isRequired={true}
+                                        accept="image/*"
+                                        previewClassName="w-20 h-20"
+                                        disabled={loading}
+                                        className="bg-white p-3 rounded-lg border border-gray-200"
+                                    />
+
+                                    {faceRecognitionResult && (
+                                        <FaceRecognitionStatus
+                                            isEnabled={enableFaceRecognition}
+                                            similarity={faceRecognitionResult.faceSimilarity}
+                                            status={faceRecognitionResult.faceVerificationStatus}
+                                            faceId={faceRecognitionResult.faceId}
+                                            isProcessing={faceProcessing}
+                                            className="mt-3"
+                                        />
+                                    )}
+
+                                    {faceProcessing && (
+                                        <FaceRecognitionStatus
+                                            isEnabled={enableFaceRecognition}
+                                            isProcessing={true}
+                                            className="mt-3"
+                                        />
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Buttons */}

@@ -20,7 +20,8 @@ import {
   FaceRegistrationPage,
   FaceRecognitionPage,
   FaceComparisonPage,
-  FaceManagementPage
+  FaceManagementPage,
+  FaceRecognitionTestPage
 } from './pages';
 import FaceApiTester from './components/FaceApiTester';
 import FaceApiTestPage from './pages/FaceApiTestPage';
@@ -145,6 +146,11 @@ function App() {
       <Route path="/face-management" element={
         <ProtectedRoute>
           <FaceManagementPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/face-recognition-test" element={
+        <ProtectedRoute>
+          <FaceRecognitionTestPage />
         </ProtectedRoute>
       } />
       
